@@ -2,3 +2,6 @@
 docs/_build
 *.pyc
 *.log
+Scripts
+Lib
+*/__pycache__

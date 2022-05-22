@@ -1,6 +1,7 @@
 
 ProxyPool 爬虫代理IP池
 =======
+
 [![Build Status](https://travis-ci.org/jhao104/proxy_pool.svg?branch=master)](https://travis-ci.org/jhao104/proxy_pool)
 [![](https://img.shields.io/badge/Powered%20by-@j_hao104-green.svg)](http://www.spiderpy.cn/blog/)
 [![Requirements Status](https://requires.io/github/jhao104/proxy_pool/requirements.svg?branch=master)](https://requires.io/github/jhao104/proxy_pool/requirements/?branch=master)
@@ -25,14 +26,13 @@ ProxyPool 爬虫代理IP池
 
 * 支持版本: ![](https://img.shields.io/badge/Python-2.x-green.svg) ![](https://img.shields.io/badge/Python-3.x-blue.svg)
 
-* 测试地址: http://demo.spiderpy.cn (勿压谢谢)
+* 测试地址: <http://demo.spiderpy.cn> (勿压谢谢)
 
 * 付费代理推荐: [luminati-china](https://brightdata.grsm.io/proxyPool). 国外的亮数据BrightData（以前叫luminati）被认为是代理市场领导者，覆盖全球的7200万IP，大部分是真人住宅IP，成功率扛扛的。付费套餐多种，需要高质量代理IP的可以注册后联系中文客服，开通后有5美金赠送和教程指引(PS:用不明白的同学可以参考这个[使用教程](https://www.cnblogs.com/jhao/p/15611785.html))。
 
-
 ### 运行项目
 
-##### 下载代码:
+##### 下载代码
 
 * git clone
 
@@ -46,14 +46,13 @@ git clone git@github.com:jhao104/proxy_pool.git
 https://github.com/jhao104/proxy_pool/releases 下载对应zip文件
 ```
 
-##### 安装依赖:
+##### 安装依赖
 
 ```bash
 pip install -r requirements.txt
 ```
 
-##### 更新配置:
-
+##### 更新配置
 
 ```python
 # setting.py 为项目配置文件
@@ -78,7 +77,7 @@ PROXY_FETCHER = [
 ]
 ```
 
-#### 启动项目:
+#### 启动项目
 
 ```bash
 # 如果已经具备运行条件, 可用通过proxyPool.py启动。
@@ -100,12 +99,11 @@ docker pull jhao104/proxy_pool
 docker run --env DB_CONN=redis://:password@ip:port/0 -p 5010:5010 jhao104/proxy_pool:2.4.0
 ```
 
-
 ### 使用
 
 * Api
 
-启动web服务后, 默认配置下会开启 http://127.0.0.1:5010 的api接口服务:
+启动web服务后, 默认配置下会开启 <http://127.0.0.1:5010> 的api接口服务:
 
 | api | method | Description | params|
 | ----| ---- | ---- | ----|
@@ -115,7 +113,6 @@ docker run --env DB_CONN=redis://:password@ip:port/0 -p 5010:5010 jhao104/proxy_
 | /all | GET | 获取所有代理 |可选参数: `?type=https` 过滤支持https的代理|
 | /count | GET | 查看代理数量 |None|
 | /delete | GET | 删除代理  |`?proxy=host:ip`|
-
 
 * 爬虫使用
 
@@ -187,13 +184,12 @@ PROXY_FETCHER = [
 ]
 ```
 
-
 　　`schedule` 进程会每隔一段时间抓取一次代理，下次抓取时会自动识别调用你定义的方法。
 
 ### 免费代理源
 
-   目前实现的采集免费代理网站有(排名不分先后, 下面仅是对其发布的免费代理情况, 付费代理测评可以参考[这里](https://zhuanlan.zhihu.com/p/33576641)): 
-   
+   目前实现的采集免费代理网站有(排名不分先后, 下面仅是对其发布的免费代理情况, 付费代理测评可以参考[这里](https://zhuanlan.zhihu.com/p/33576641)):
+
   |   代理名称   |  状态  |  更新速度 |  可用率  |  地址 |    代码   |
   | ---------   |  ---- | --------  | ------  | ----- |   ------- |
   | 米扑代理     |  ✔    |     ★     |   *     | [地址](https://proxy.mimvp.com/)    | [`freeProxy01`](/fetcher/proxyFetcher.py#L27) |
@@ -207,7 +203,6 @@ PROXY_FETCHER = [
   | 免费代理库   |  ✔    |      ☆     |    *    | [地址](http://ip.jiangxianli.com/)   | [`freeProxy09`](/fetcher/proxyFetcher.py#L136) |
   | 89代理      |  ✔    |      ☆     |   *     | [地址](https://www.89ip.cn/)         | [`freeProxy10`](/fetcher/proxyFetcher.py#L147) |
 
-  
   如果还有其他好的免费代理网站, 可以在提交在[issues](https://github.com/jhao104/proxy_pool/issues/71), 下次更新时会考虑在项目中支持。
 
 ### 问题反馈
@@ -225,7 +220,6 @@ PROXY_FETCHER = [
 　　这里感谢以下contributor的无私奉献：
 
 　　[@kangnwh](https://github.com/kangnwh) | [@bobobo80](https://github.com/bobobo80) | [@halleywj](https://github.com/halleywj) | [@newlyedward](https://github.com/newlyedward) | [@wang-ye](https://github.com/wang-ye) | [@gladmo](https://github.com/gladmo) | [@bernieyangmh](https://github.com/bernieyangmh) | [@PythonYXY](https://github.com/PythonYXY) | [@zuijiawoniu](https://github.com/zuijiawoniu) | [@netAir](https://github.com/netAir) | [@scil](https://github.com/scil) | [@tangrela](https://github.com/tangrela) | [@highroom](https://github.com/highroom) | [@luocaodan](https://github.com/luocaodan) | [@vc5](https://github.com/vc5) | [@1again](https://github.com/1again) | [@obaiyan](https://github.com/obaiyan) | [@zsbh](https://github.com/zsbh) | [@jiannanya](https://github.com/jiannanya)
-
 
 ### Release Notes
 

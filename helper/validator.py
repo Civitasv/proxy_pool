@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 -------------------------------------------------
-   File Name：     _validators
+   File Name:     _validators
    Description :   定义proxy验证方法
    Author :        JHao
-   date：          2021/5/25
+   date:          2021/5/25
 -------------------------------------------------
    Change Activity:
                    2021/5/25:
@@ -59,10 +59,12 @@ def formatValidator(proxy):
 def httpTimeOutValidator(proxy):
     """ http检测超时 """
 
-    proxies = {"http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
+    proxies = {
+        "http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
 
     try:
-        r = head(conf.httpUrl, headers=HEADER, proxies=proxies, timeout=conf.verifyTimeout)
+        r = head(conf.httpUrl, headers=HEADER,
+                 proxies=proxies, timeout=conf.verifyTimeout)
         return True if r.status_code == 200 else False
     except Exception as e:
         return False
@@ -72,9 +74,11 @@ def httpTimeOutValidator(proxy):
 def httpsTimeOutValidator(proxy):
     """https检测超时"""
 
-    proxies = {"http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
+    proxies = {
+        "http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
     try:
-        r = head(conf.httpsUrl, headers=HEADER, proxies=proxies, timeout=conf.verifyTimeout, verify=False)
+        r = head(conf.httpsUrl, headers=HEADER, proxies=proxies,
+                 timeout=conf.verifyTimeout, verify=False)
         return True if r.status_code == 200 else False
     except Exception as e:
         return False
