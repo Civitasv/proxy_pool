@@ -212,6 +212,8 @@ def execute():
 
     data = pd.concat(result, ignore_index=True)
     print("The number of restaurants is {}".format(len(data)))
+    data.drop_duplicates("unique_id", "first", inplace=True)
+    print("The number of restaurants after clean is {}".format(len(data)))
     return data
 
 

@@ -5,3 +5,8 @@ docs/_build
 Scripts
 Lib
 */__pycache__
+yelp-crawl/recommended-reviews
+yelp-crawl/recommended-reviews.zip
+yelp-crawl/requests-test.ipynb
+yelp-crawl/unrecommended-reviews
+yelp-crawl/unrecommended-reviews.zip

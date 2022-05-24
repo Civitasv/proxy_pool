@@ -15,7 +15,7 @@ __author__ = 'JHao'
 import sys
 from db.dbClient import DbClient
 from handler.logHandler import LogHandler
-from handler.configHandler import ConfigHandler
+from handler.configHanler import ConfigHandler
 
 log = LogHandler('launcher')
 
