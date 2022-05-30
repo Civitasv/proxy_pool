@@ -1,6 +1,7 @@
 # Explanation of data format
 
-> Crape time: 05/14/2022
+> Crape time: 05/14/2022  
+> Encoding: UTF-8
 
 ## restaurants.csv
 
@@ -17,7 +18,10 @@ This file contains all restaurants of Seattle. The detailed explanations of each
 |unique_alias|Unique Yelp alias of this restaurant|
 |image_url|URL of photo for this restaurant|
 |is_closed|Whether this restaurant has been closed|
-|location|Location of this restaurant, including address, city, state, zip code and country|
+|city|City of this restaurant|
+|country|Country of this restaurant|
+|state|State of this restaurant|
+|zip_code|ZipCode of this restaurant|
 |name|Name of this restaurant|
 |price|Price level of this restaurant (one of $, $$, $$$, and $$$$)|
 |rating|Rating for this restaurant (value ranges from 1, 1.5, ..., 4.5, 5)|
@@ -28,7 +32,7 @@ This file contains all restaurants of Seattle. The detailed explanations of each
 
 ## (un)recommended-reviews
 
-This directory includes all (un)recommended reviews of restaurants. The name format of each file is: `[unique_alias ],[unique_id].csv`.
+This directory includes all (un)recommended reviews of restaurants. The name format of each file is: `[unique_id].csv`.
 
 And the detailed explanations of each field are as follows.
 
@@ -39,7 +43,7 @@ user_id,user,comment,date,rating,feedback
 |review_id|Unique id of this review|
 |unique_id|Unique id of corresponding restaurant of this review|
 |unique_alias|Unique id of corresponding restaurant of this review|
-|user_id|User id of corresponding user **(unrecommended-reviews don't have this information)**|
+|user_id|User id of corresponding user **(unrecommended-reviews don't have this field)**|
 |user|Detailed user info|
 |comment|The content and language of this review|
 |date|Date of this review|

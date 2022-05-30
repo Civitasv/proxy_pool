@@ -10,3 +10,8 @@ yelp-crawl/recommended-reviews.zip
 yelp-crawl/requests-test.ipynb
 yelp-crawl/unrecommended-reviews
 yelp-crawl/unrecommended-reviews.zip
+yelp-crawl/归档
+yelp-crawl/seattle-restaurants
+yelp-crawl/*.zip
+yelp-crawl/*.mxd
+yelp-crawl/restaurants.csv

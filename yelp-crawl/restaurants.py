@@ -1,6 +1,7 @@
 import requests
 import math
 import pandas as pd
+import concurrent.futures
 
 
 class Hexagon:
@@ -22,28 +23,31 @@ class Point(object):
 
 
 def generate_hexagons(rect):
+    print(rect)
     hexagons = []
-    r = 0.05  # 单位：度
-    r_m = 6000  # 单位：m
-    distance = r * math.sin(math.pi / 3) * 2  # 六边形圆心之间的距离
+    r = 0.01  # 单位：度
+    r_m = 1500  # 单位：m
+    x_distance = r * math.sin(math.pi / 3) * 2  # 六边形圆心之间的距离
+    y_distance = 3 * r / 2
     x_start = rect["left"]
-    y_start = rect["bottom"] + r * math.cos(math.pi / 3)
+    y_start = rect["bottom"]
 
     while True:
         i = 0
         while True:
             hexagon = Hexagon(
                 Point(x_start if i % 2 == 0 else x_start +
-                      distance / 2, y_start), r_m
+                      x_distance / 2, y_start), r_m
             )
             hexagons.append(hexagon)
-            if y_start + r / 2 > rect["top"]:
+            if (y_start + r / 2) > rect["top"]:
                 break
-            y_start += 3 * r / 2
+            y_start += y_distance
             i += 1
-        if x_start + distance / 2 > rect["right"]:
+        if (x_start + x_distance / 2) > rect["right"]:
             break
-        x_start += distance
+        x_start += x_distance
+        y_start = rect["bottom"]
 
     return hexagons
 
@@ -80,9 +84,12 @@ MAX_SIZE = 1000
 
 
 def yelp_business_request(params):
-    result = requests.request("GET", BUSINESS_SEARCH,
-                              headers=HEADER, params=params, proxies={"https": "http://127.0.0.1:7890"})
-    return result.json()
+    try:
+        result = requests.request("GET", BUSINESS_SEARCH,
+                                  headers=HEADER, params=params, proxies={"https": "http://127.0.0.1:24000"})
+        return result.json()
+    except:
+        return yelp_business_request(params)
 
 
 def yelp_business_reviews_request(id):
@@ -98,7 +105,7 @@ def yelp_search(_categories, _lng, _lat, _radius):
         "latitude": _lat,
         "limit": PER_PAGE_SIZE,
         "radius": _radius,
-        "offset": 0,
+        "offset": 0
     }
 
     # get total number
@@ -114,48 +121,67 @@ def yelp_search(_categories, _lng, _lat, _radius):
 
     result = []
     print("********************** Start ***********************")
-    for offset in offsets:
-        print("Retrieving: {}/{}".format(offset, total))
-        params["offset"] = offset
-        data = yelp_business_request(params)["businesses"]
-        for item in data:  # extract data we need in loop
-            # get basic information
-            categories = item.get("categories", "")
-            latitude = item["coordinates"]["latitude"]
-            longitude = item["coordinates"]["longitude"]
-            location = item.get("location", "")
-            display_phone = item.get("display_phone", "")
-            phone = item.get("phone", "")
-            unique_id = item.get("id", "")
-            unique_alias = item.get("alias", "")
-            image_url = item.get("image_url", "")
-            is_closed = item.get("is_closed", "")
-            name = item.get("name", "")
-            price = item.get("price", "")
-            rating = item.get("rating", "")
-            review_count = item.get("review_count", "")
-            url = item.get("url", "")
-            transactions = item.get("transactions", "")
-            result.append(
-                [
-                    categories,
-                    latitude,
-                    longitude,
-                    display_phone,
-                    phone,
-                    unique_id,
-                    unique_alias,
-                    image_url,
-                    is_closed,
-                    location,
-                    name,
-                    price,
-                    rating,
-                    review_count,
-                    url,
-                    transactions,
-                ]
-            )
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        results = [
+            executor.submit(yelp_business_request, params={
+                "categories": _categories,
+                "longitude": _lng,
+                "latitude": _lat,
+                "limit": PER_PAGE_SIZE,
+                "radius": _radius,
+                "offset": offset
+            }) for offset in offsets]
+        for f in concurrent.futures.as_completed(results):
+            item_result = f.result()
+            if not "businesses" in item_result:
+                print("ERROR", item_result)
+                continue
+            data = item_result["businesses"]
+            for item in data:  # extract data we need in loop
+                # get basic information
+                categories = item.get("categories", "")
+                latitude = item["coordinates"]["latitude"]
+                longitude = item["coordinates"]["longitude"]
+                location = item.get("location", "")
+                city = location.get("city", "")
+                country = location.get("country", "")
+                state = location.get("state", "")
+                zip_code = location.get("zip_code", "")
+                display_phone = item.get("display_phone", "")
+                phone = item.get("phone", "")
+                unique_id = item.get("id", "")
+                unique_alias = item.get("alias", "")
+                image_url = item.get("image_url", "")
+                is_closed = item.get("is_closed", "")
+                name = item.get("name", "")
+                price = item.get("price", "")
+                rating = item.get("rating", "")
+                review_count = item.get("review_count", "")
+                url = item.get("url", "")
+                transactions = item.get("transactions", "")
+                result.append(
+                    [
+                        categories,
+                        latitude,
+                        longitude,
+                        display_phone,
+                        phone,
+                        unique_id,
+                        unique_alias,
+                        image_url,
+                        is_closed,
+                        city,
+                        country,
+                        state,
+                        zip_code,
+                        name,
+                        price,
+                        rating,
+                        review_count,
+                        url,
+                        transactions,
+                    ]
+                )
     df = pd.DataFrame(
         data=result,
         columns=[
@@ -168,7 +194,10 @@ def yelp_search(_categories, _lng, _lat, _radius):
             "unique_alias",
             "image_url",
             "is_closed",
-            "location",
+            "city",
+            "country",
+            "state",
+            "zip_code",
             "name",
             "price",
             "rating",
@@ -186,10 +215,10 @@ def yelp_search(_categories, _lng, _lat, _radius):
 
 def execute():
     rect = {
-        "left": -122.455368,
-        "right": -122.228088,
-        "top": 47.734542,
-        "bottom": 47.491989,
+        "left": -122.44122949231766,
+        "right": -122.22443083019671,
+        "top": 47.73414670377082,
+        "bottom": 47.49320479590832,
     }
 
     # 1. generate hexagons
@@ -218,7 +247,7 @@ def execute():
 
 
 if __name__ == "__main__":
-    output_file = "./restaurants.csv"
+    output_file = "./restaurants2.csv"
     data = execute()
-    data.to_csv(output_file, index=False)
+    data.to_csv(output_file, index=False, encoding="utf8")
     print("the csv has been downloaded to your local computer. The program has been completed successfully.")

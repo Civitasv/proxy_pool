@@ -3,6 +3,7 @@
 
 For Reviews
 """
+import json
 
 import requests
 import math
@@ -30,22 +31,25 @@ def read_restaurants_csv(csvfile):
                 i = 1
                 continue
             # get basic information
-            categories = item[0]
-            latitude = item[1]
-            longitude = item[2]
-            display_phone = item[3]
-            phone = item[4]
-            unique_id = item[5]
-            unique_alias = item[6]
-            image_url = item[7]
-            is_closed = item[8]
-            location = item[9]
-            name = item[10]
-            price = item[11]
-            rating = item[12]
-            review_count = item[13]
-            url = item[14]
-            transactions = item[15]
+            categories = item[1]
+            latitude = item[2]
+            longitude = item[3]
+            display_phone = item[4]
+            phone = item[5]
+            unique_id = item[6]
+            unique_alias = item[7]
+            image_url = item[8]
+            is_closed = item[9]
+            city = item[10]
+            country = item[11]
+            state = item[12]
+            zip_code = item[13]
+            name = item[14]
+            price = item[15]
+            rating = item[16]
+            review_count = item[17]
+            url = item[18]
+            transactions = item[19]
             result.append(
                 [
                     categories,
@@ -57,7 +61,10 @@ def read_restaurants_csv(csvfile):
                     unique_alias,
                     image_url,
                     is_closed,
-                    location,
+                    city,
+                    country,
+                    state,
+                    zip_code,
                     name,
                     price,
                     rating,
@@ -79,7 +86,10 @@ def read_restaurants_csv(csvfile):
                 "unique_alias",
                 "image_url",
                 "is_closed",
-                "location",
+                "city",
+                "country",
+                "state",
+                "zip_code",
                 "name",
                 "price",
                 "rating",
@@ -137,7 +147,7 @@ def yelp_recommended_reviews_crawler_with_api(unique_id, unique_alias):
 
     result = []
     print("********************** Start ***********************")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
         results = [executor.submit(yelp_recommended_reviews_request, start=start) for start in starts]
         for f in concurrent.futures.as_completed(results):
             item_result = f.result()
@@ -186,7 +196,7 @@ def yelp_recommended_reviews_crawler_with_api(unique_id, unique_alias):
     df.drop_duplicates("review_id", "first", inplace=True)
     print("The number of recommended reviews for {} is {}".format(unique_alias, len(result)))
 
-    save_to_csv(df, "recommended-reviews/" + unique_alias + "," + unique_id + ".csv")
+    save_to_csv(df, "recommended-reviews/" + unique_id + ".csv")
 
 
 def yelp_unrecommended_reviews_crawler_without_api(unique_id, unique_alias):
@@ -259,16 +269,19 @@ def yelp_unrecommended_reviews_crawler_without_api(unique_id, unique_alias):
                 except Exception as e:
                     print("PHOTO_COUNT", e)
                     return yelp_unrecommended_reviews_request(not_recommended_start, retry - 1)
-                try:
-                    user_id = li.xpath('./div/div[1]/div/div/div[2]/ul[1]/li[1]/span/@data-hovercard-id')[0]
-                except Exception as e:
-                    print("USER_ID", e)
-                    user_id = ""
+                # try:
+                #     user_id = li.xpath('./div/div[1]/div/div/div[2]/ul[1]/li[1]/span/@data-hovercard-id')[0]
+                # except Exception as e:
+                #     print("USER_ID", e)
+                #     user_id = ""
                 try:
                     text = li.xpath('./div/div[2]/div[1]/p/text()')[0]
                 except Exception as e:
-                    print("TEXT", e)
-                    return yelp_unrecommended_reviews_request(not_recommended_start, retry - 1)
+                    try:
+                        text = li.xpath('./div/div[2]/div[1]/p/a/text()')[0]
+                    except Exception as e:
+                        print("TEXT", e)
+                        return yelp_unrecommended_reviews_request(not_recommended_start, retry - 1)
                 try:
                     language = li.xpath('./div/div[2]/div[1]/p/@lang')[0]
                 except Exception as e:
@@ -302,7 +315,6 @@ def yelp_unrecommended_reviews_crawler_without_api(unique_id, unique_alias):
                 reviews.append([review_id,
                                 unique_id,
                                 unique_alias,
-                                user_id,
                                 user,
                                 comment,
                                 date,
@@ -340,7 +352,6 @@ def yelp_unrecommended_reviews_crawler_without_api(unique_id, unique_alias):
             "review_id",
             "unique_id",
             "unique_alias",
-            "user_id",
             "user",
             "comment",
             "date",
@@ -351,7 +362,7 @@ def yelp_unrecommended_reviews_crawler_without_api(unique_id, unique_alias):
     df.drop_duplicates("review_id", "first", inplace=True)
     print("The number of unrecommended reviews for {} is {}".format(unique_alias, len(result)))
 
-    save_to_csv(df, "unrecommended-reviews/" + unique_alias + "," + unique_id + ".csv")
+    save_to_csv(df, "unrecommended-reviews/" + unique_id + ".csv")
 
 
 def save_to_csv(data, filename):
@@ -365,7 +376,7 @@ def yelp_recommended_reviews():
     for index, row in data.iterrows():
         unique_id = row["unique_id"]
         unique_alias = row["unique_alias"]
-        path = "recommended-reviews/" + unique_alias + "," + unique_id + ".csv"
+        path = "recommended-reviews/" + unique_id + ".csv"
         if os.path.exists(path):
             continue
         yelp_recommended_reviews_crawler_with_api(row["unique_id"], row["unique_alias"])
@@ -378,29 +389,30 @@ def yelp_unrecommended_reviews():
     for index, row in data.iterrows():
         unique_id = row["unique_id"]
         unique_alias = row["unique_alias"]
-        path = "unrecommended-reviews/" + unique_alias + "," + unique_id + ".csv"
+        path = "unrecommended-reviews/" + unique_id + ".csv"
         if os.path.exists(path):
             continue
         yelp_unrecommended_reviews_crawler_without_api(row["unique_id"], row["unique_alias"])
 
 
 if __name__ == "__main__":
+    # yelp_recommended_reviews()
     data = read_restaurants_csv("restaurants.csv")
-
-    for index, row in data.iterrows():
-        unique_id = row["unique_id"]
-        unique_alias = row["unique_alias"]
-        path = "unrecommended-reviews/" + unique_alias + "," + unique_id + ".csv"
-        with open(path, encoding="utf8") as f:
-            reader = csv.reader(f)
-            lines = len(list(reader))
-            data.at[index, "unrecommended_review_count"] = lines - 1
-
-        path = "recommended-reviews/" + unique_alias + "," + unique_id + ".csv"
-        with open(path, encoding="utf8") as f:
-            reader = csv.reader(f)
-            lines = len(list(reader))
-            data.at[index, "recommended_review_count"] = lines - 1
-
-    save_to_csv(data, "restaurants2.csv")
-
+    print(len(data))
+    # for index, row in data.iterrows():
+    #     unique_id = row["unique_id"]
+    #     unique_alias = row["unique_alias"]
+    #     path = "unrecommended-reviews/" + unique_id + ".csv"
+    #     with open(path, encoding="utf8") as f:
+    #         reader = csv.reader(f)
+    #         lines = len(list(reader))
+    #         data.at[index, "unrecommended_review_count"] = lines - 1
+    #
+    #     path = "recommended-reviews/" + unique_id + ".csv"
+    #     with open(path, encoding="utf8") as f:
+    #         reader = csv.reader(f)
+    #         lines = len(list(reader))
+    #         data.at[index, "recommended_review_count"] = lines - 1
+    #
+    # save_to_csv(data, "restaurants2.csv")
+    #
